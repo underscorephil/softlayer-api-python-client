@@ -490,7 +490,6 @@ Optional:
     def _get_price_id_from_options(self, bmi_options, option, value):
         bmi_obj = BMCCreateOptions()
         price_id = None
-        from pprint import pprint as pp
         for _, v in bmi_obj.get_create_options(bmi_options, option, False):
             for item_options in v:
                 if str(item_options[0]) == value:
