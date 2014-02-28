@@ -152,7 +152,29 @@ getObject = {
         'firewallInterfaces': [{'id': 1234}],
         'firewallRules': [{'id': 1234}],
         'highAvailabilityFirewallFlag': True,
-    }]
+    }],
+    'cdnAccounts': [{
+        "cdnAccountName": "1234a",
+        "providerPortalAccessFlag": False,
+        "createDate": "2012-06-25T14:05:28-07:00",
+        "id": 1234,
+        "legacyCdnFlag": False,
+        "dependantServiceFlag": True,
+        "cdnSolutionName": "ORIGIN_PULL",
+        "statusId": 4,
+        "accountId": 1234
+    },
+    {
+        "cdnAccountName": "1234a",
+        "providerPortalAccessFlag": False,
+        "createDate": "2012-07-24T13:34:25-07:00",
+        "id": 1234,
+        "legacyCdnFlag": False,
+        "dependantServiceFlag": False,
+        "cdnSolutionName": "POP_PULL",
+        "statusId": 4,
+        "accountId": 1234
+    }] 
 }
 
 getRwhoisData = {
@@ -201,3 +223,28 @@ getSecurityCertificates = [{'certificate': '1234',
                             'id': 1234}]
 getExpiredSecurityCertificates = getSecurityCertificates
 getValidSecurityCertificates = getSecurityCertificates
+
+getCdnAccounts = [
+    {
+        "cdnAccountName": "1234a",
+        "providerPortalAccessFlag": False,
+        "createDate": "2012-06-25T14:05:28-07:00",
+        "id": 1234,
+        "legacyCdnFlag": False,
+        "dependantServiceFlag": True,
+        "cdnSolutionName": "ORIGIN_PULL",
+        "statusId": 4,
+        "accountId": 1234
+    },
+    {
+        "cdnAccountName": "1234a",
+        "providerPortalAccessFlag": False,
+        "createDate": "2012-07-24T13:34:25-07:00",
+        "id": 1234,
+        "legacyCdnFlag": False,
+        "dependantServiceFlag": False,
+        "cdnSolutionName": "POP_PULL",
+        "statusId": 4,
+        "accountId": 1234
+    }
+] 
