@@ -240,17 +240,21 @@ class VSManager(utils.IdentifierMixin, object):
         """
         return self.guest.deleteObject(id=instance_id)
 
-    def reload_instance(self, instance_id, post_uri=None, ssh_keys=None):
-        """Perform an OS reload of an instance with its current configuration.
+    def reload_instance(self, instance_id,
+                        post_uri=None,
+                        ssh_keys=None,
+                        image_id=None):
+        """Perform an OS reload of an instance.
 
         :param integer instance_id: the instance ID to reload
         :param string post_url: The URI of the post-install script to run
                                 after reload
         :param list ssh_keys: The SSH keys to add to the root user
+        :param int image_id: The ID of the image to load onto the server
 
         .. warning::
-            Post-provision script MUST be HTTPS for it to be executed.
             This will reformat the primary drive.
+            Post-provision script MUST be HTTPS for it to be executed.
 
         Example::
 
@@ -268,8 +272,11 @@ class VSManager(utils.IdentifierMixin, object):
         if ssh_keys:
             config['sshKeyIds'] = [key_id for key_id in ssh_keys]
 
-        return self.guest.reloadOperatingSystem('FORCE', config,
-                                                id=instance_id)
+        if image_id:
+            config['imageTemplateId'] = image_id
+
+        return self.client.call('Virtual_Guest', 'reloadOperatingSystem',
+                                'FORCE', config, id=instance_id)
 
     def _generate_create_dict(
             self, cpus=None, memory=None, hourly=True,
@@ -394,9 +401,12 @@ class VSManager(utils.IdentifierMixin, object):
             # Will return once vsi 12345 is ready, or after 10 checks
             ready = mgr.wait_for_ready(12345, 10)
         """
-        for count, new_instance in enumerate(itertools.repeat(instance_id),
-                                             start=1):
-            instance = self.get_instance(new_instance)
+        until = time.time() + limit
+        for new_instance in itertools.repeat(instance_id):
+            mask = """id,
+                      lastOperatingSystemReload.id,
+                      activeTransaction.id,provisionDate"""
+            instance = self.get_instance(new_instance, mask=mask)
             last_reload = utils.lookup(instance,
                                        'lastOperatingSystemReload',
                                        'id')
@@ -407,7 +417,7 @@ class VSManager(utils.IdentifierMixin, object):
             reloading = all((
                 active_transaction,
                 last_reload,
-                last_reload == active_transaction
+                last_reload == active_transaction,
             ))
 
             # only check for outstanding transactions if requested
@@ -422,10 +432,11 @@ class VSManager(utils.IdentifierMixin, object):
                     not outstanding]):
                 return True
 
-            if count >= limit:
+            now = time.time()
+            if now >= until:
                 return False
 
-            time.sleep(delay)
+            time.sleep(min(delay, until - now))
 
     def verify_create_instance(self, **kwargs):
         """Verifies an instance creation command.
@@ -788,8 +799,8 @@ class VSManager(utils.IdentifierMixin, object):
         vs_id = {'memory': 3, 'cpus': 80, 'nic_speed': 26}
         for item in package_items:
             categories = item['prices'][0]['categories']
-            for j in range(len(categories)):
-                if not (categories[j]['id'] == vs_id[option] and
+            for category in categories:
+                if not (category['id'] == vs_id[option] and
                         item['capacity'] == str(value)):
                     continue
                 if option == 'cpus':

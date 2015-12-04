@@ -1,13 +1,13 @@
 """Get details for a virtual server."""
 # :license: MIT, see LICENSE for more details.
 
+import click
+
 import SoftLayer
 from SoftLayer.CLI import environment
 from SoftLayer.CLI import formatting
 from SoftLayer.CLI import helpers
 from SoftLayer import utils
-
-import click
 
 
 @click.command()
@@ -95,14 +95,7 @@ def cli(env, identifier, passwords=False, price=False):
             pass_table.add_row([item['username'], item['password']])
         table.add_row(['users', pass_table])
 
-    tag_row = []
-    for tag_detail in result['tagReferences']:
-        tag = utils.lookup(tag_detail, 'tag', 'name')
-        if tag is not None:
-            tag_row.append(tag)
-
-    if tag_row:
-        table.add_row(['tags', formatting.listing(tag_row, separator=', ')])
+    table.add_row(['tags', formatting.tags(result['tagReferences'])])
 
     # Test to see if this actually has a primary (public) ip address
     try:

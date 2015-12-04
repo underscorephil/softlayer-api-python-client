@@ -10,17 +10,15 @@ import logging
 import sys
 import types
 
+import click
+
 import SoftLayer
 from SoftLayer.CLI import environment
 from SoftLayer.CLI import exceptions
 from SoftLayer.CLI import formatting
 
-import click
 # pylint: disable=too-many-public-methods, broad-except, unused-argument
 # pylint: disable=redefined-builtin, super-init-not-called
-
-# Disable the cyclic import error. This is handled by an inline import.
-# pylint: disable=cyclic-import
 
 DEBUG_LOGGING_MAP = {
     0: logging.CRITICAL,
@@ -149,8 +147,8 @@ def cli(env,
             )
         env.client = client
 
-    env.vars['timings'] = SoftLayer.TimingTransport(env.client.transport)
-    env.client.transport = env.vars['timings']
+    env.vars['_timings'] = SoftLayer.TimingTransport(env.client.transport)
+    env.client.transport = env.vars['_timings']
 
 
 @cli.resultcallback()
@@ -158,10 +156,10 @@ def cli(env,
 def output_result(env, timings=False, *args, **kwargs):
     """Outputs the results returned by the CLI and also outputs timings."""
 
-    if timings and env.vars.get('timings'):
+    if timings and env.vars.get('_timings'):
         timing_table = formatting.Table(['service', 'method', 'time'])
 
-        calls = env.vars['timings'].get_last_calls()
+        calls = env.vars['_timings'].get_last_calls()
         for call, _, duration in calls:
             timing_table.add_row([call.service, call.method, duration])
 

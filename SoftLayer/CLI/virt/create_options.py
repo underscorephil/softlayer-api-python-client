@@ -1,14 +1,13 @@
 """Virtual server order options."""
 # :license: MIT, see LICENSE for more details.
-
 import os
 import os.path
+
+import click
 
 import SoftLayer
 from SoftLayer.CLI import environment
 from SoftLayer.CLI import formatting
-
-import click
 
 
 @click.command()
@@ -27,7 +26,7 @@ def cli(env):
     datacenters = [dc['template']['datacenter']['name']
                    for dc in result['datacenters']]
     table.add_row(['datacenter',
-                   formatting.listing(datacenters, separator=',')])
+                   formatting.listing(datacenters, separator='\n')])
 
     # CPUs
     standard_cpu = [x for x in result['processors']
